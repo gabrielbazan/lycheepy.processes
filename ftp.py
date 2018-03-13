@@ -1,12 +1,12 @@
 import os
-import ftplib
+from ftplib import FTP, error_perm
 
 
 class Ftp(object):
 
     def __init__(self, ip, username, password, timeout):
-        self._ftp = ftplib.FTP(ip, timeout=timeout)
-        self._ftp.login(user=username, passwd=password)
+        self.connection = FTP(ip, timeout=timeout)
+        self.connection.login(user=username, passwd=password)
 
     def __enter__(self):
         return self
@@ -15,53 +15,53 @@ class Ftp(object):
         self.close()
 
     def close(self):
-        self._ftp.quit()
+        self.connection.quit()
 
     def upload_files(self, files, source, destination):
         for filename in files:
-            self._ftp.storbinary(
+            self.connection.storbinary(
                 'STOR ' + os.path.join(destination, filename),
                 open(os.path.join(source, filename), 'rb')
             )
 
     def download_file(self, remote_path, local_path):
-        self._ftp.retrbinary('RETR ' + remote_path, open(local_path, 'wb').write)
+        self.connection.retrbinary('RETR ' + remote_path, open(local_path, 'wb').write)
 
     def upload_file(self, local_path, remote_path):
-        self._ftp.storbinary('STOR ' + remote_path, open(local_path, 'rb'))
+        self.connection.storbinary('STOR ' + remote_path, open(local_path, 'rb'))
 
     def get_files_in_directory(self, directory):
         file_list = []
-        for element in list(self._ftp.nlst(directory)):
+        for element in list(self.connection.nlst(directory)):
             try:
-                self._ftp.cwd(element)
-            except ftplib.error_perm:
+                self.connection.cwd(element)
+            except error_perm:
                 file_list.append(os.path.basename(element))
         return file_list
 
     def directory_exist(self, path):
-        current_path = self._ftp.pwd()
+        current_path = self.connection.pwd()
         exists = True
         try:
-            self._ftp.cwd(path)
+            self.connection.cwd(path)
         except Exception:
             exists = False
         finally:
-            self._ftp.cwd(current_path)
+            self.connection.cwd(current_path)
             return exists
 
     def create_directory(self, path):
-        self._ftp.mkd(path)
+        self.connection.mkd(path)
 
     def delete_file(self, path):
-        self._ftp.delete(path)
+        self.connection.delete(path)
 
     def delete_directory(self, path):
-        self._ftp.rmd(path)
+        self.connection.rmd(path)
 
     def is_up(self):
         try:
-            self._ftp.retrlines('LIST')
+            self.connection.retrlines('LIST')
         except Exception:
             return False
         return True

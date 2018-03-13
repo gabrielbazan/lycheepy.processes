@@ -1,3 +1,4 @@
+import os
 from ftp import Ftp
 
 
@@ -9,7 +10,12 @@ class ProcessesGateway(object):
 
     def add(self, process_file_path):
         with self.connection:
-            self.connection.upload_file(process_file_path, self.directory)
+            if not self.connection.directory_exist(self.directory):
+                self.connection.create_directory(self.directory)
+            self.connection.upload_file(
+                process_file_path,
+                os.path.join(self.directory, os.path.basename(process_file_path))
+            )
 
     def get(self, remote_file_path, local_destination_path):
         with self.connection:
