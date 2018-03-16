@@ -39,6 +39,13 @@ class Ftp(object):
                 file_list.append(os.path.basename(element))
         return file_list
 
+    def download_directory_contents(self, remote_dir, local_dir):
+        for remote in self.get_files_in_directory(remote_dir):
+            self.download_file(
+                os.path.join(remote_dir, remote),
+                os.path.join(local_dir, remote)
+            )
+
     def directory_exist(self, path):
         current_path = self.connection.pwd()
         exists = True
@@ -52,6 +59,10 @@ class Ftp(object):
 
     def create_directory(self, path):
         self.connection.mkd(path)
+
+    def create_directory_if_not_exists(self, path):
+        if not self.directory_exist(path):
+            self.create_directory(path)
 
     def delete_file(self, path):
         self.connection.delete(path)
