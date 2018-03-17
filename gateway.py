@@ -45,7 +45,7 @@ class ProcessesGateway(object):
 
         instance = None
         for name, _class in inspect.getmembers(sys.modules[module_name], inspect.isclass):
-            if _class.__name__ == class_name:
+            if _class.__name__ == class_name or _class.__name__ == identifier:
                 instance = _class()
 
         return instance
