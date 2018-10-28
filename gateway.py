@@ -77,7 +77,7 @@ class ProcessesGateway(object):
 
     def remove(self, identifier):
         with self.connection:
-            self.connection.delete_directory(self._get_remote_process_directory(identifier))
+            self.connection.delete_non_empty_directory(self._get_remote_process_directory(identifier))
 
     def get_process_context(self, identifier, local_directory):
         local_directory = self.get(identifier, local_directory)

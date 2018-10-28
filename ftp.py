@@ -70,6 +70,11 @@ class Ftp(object):
     def delete_directory(self, path):
         self.connection.rmd(path)
 
+    def delete_non_empty_directory(self, path):
+        for f in self.connection.nlst(path):
+            self.connection.delete(f)
+        self.connection.rmd(path)
+
     def is_up(self):
         try:
             self.connection.retrlines('LIST')
